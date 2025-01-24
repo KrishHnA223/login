@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Login Page with Registration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,15 +46,37 @@
 <body>
 
     <div class="container">
-        <h2>Login</h2>
+        <h2>Register / Login</h2>
         <input type="email" id="email" placeholder="Enter your email" required>
         <input type="password" id="password" placeholder="Enter your password" required>
+        <button onclick="register()">Register</button>
         <button onclick="login()">Login</button>
         <p><a href="#" onclick="forgotPassword()">Forgot Password?</a></p>
     </div>
 
     <script>
         const API_BASE_URL = 'https://login-backend.iamhereis.workers.dev/api';
+
+        async function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+                alert(data.message);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
+        }
 
         async function login() {
             const email = document.getElementById('email').value;
@@ -71,9 +93,9 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert(data.message); // Display success message
+                    alert(data.message);
                 } else {
-                    alert(data.message); // Display error message
+                    alert(data.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -94,7 +116,7 @@
                     });
 
                     const data = await response.json();
-                    alert(data.message); // Display reset message
+                    alert(data.message);
                 } catch (error) {
                     console.error('Error:', error);
                     alert('An error occurred');
