@@ -90,6 +90,77 @@
     </div>
     <div class="message" id="message"></div>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    // URLs for your Cloudflare Worker API
+    const API_BASE_URL = '/api'; // Matches the route in your Worker
+    const LOGIN_URL = `${API_BASE_URL}/login`;
+    const FORGOT_PASSWORD_URL = `${API_BASE_URL}/forgot-password`;
+
+    // Function to display messages
+    function showMessage(message, color = 'green') {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.style.color = color;
+    }
+
+    // Login button click handler
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showMessage('Please enter both email and password', 'red');
+        return;
+      }
+
+      try {
+        const response = await fetch(LOGIN_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showMessage(data.message || 'Login successful');
+        } else {
+          const errorData = await response.json();
+          showMessage(errorData.message || 'Login failed', 'red');
+        }
+      } catch (error) {
+        showMessage('An error occurred. Please try again.', 'red');
+      }
+    });
+
+    // Forgot password button click handler
+    document.getElementById('forgot-password-btn').addEventListener('click', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+
+      if (!email) {
+        showMessage('Please enter your email address', 'red');
+        return;
+      }
+
+      try {
+        const response = await fetch(FORGOT_PASSWORD_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showMessage(data.message || 'Password reset link sent to your email');
+        } else {
+          const errorData = await response.json();
+          showMessage(errorData.message || 'Failed to send password reset link', 'red');
+        }
+      } catch (error) {
+        showMessage('An error occurred. Please try again.', 'red');
+      }
+    });
+  </script>
 </body>
 </html>
