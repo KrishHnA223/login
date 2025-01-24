@@ -1,166 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Page</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f4f4f4;
-    }
-    .login-container {
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    .login-container h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .form-group button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .form-group button:hover {
-      background-color: #0056b3;
-    }
-    .forgot-password {
-      text-align: center;
-      margin-top: 10px;
-    }
-    .forgot-password a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .forgot-password a:hover {
-      text-decoration: underline;
-    }
-    .message {
-      text-align: center;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-  <div class="login-container">
-    <h1>Login</h1>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Enter your email">
+
+    <div class="container">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Enter your email" required>
+        <input type="password" id="password" placeholder="Enter your password" required>
+        <button onclick="login()">Login</button>
+        <p><a href="#" onclick="forgotPassword()">Forgot Password?</a></p>
     </div>
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Enter your password">
-    </div>
-    <div class="form-group">
-      <button id="login-btn">Login</button>
-    </div>
-    <div class="forgot-password">
-      <a href="#" id="forgot-password-btn">Forgot Password?</a>
-    </div>
-    <div class="message" id="message"></div>
-  </div>
 
-  <script>
-    // URLs for your Cloudflare Worker API
-    const API_BASE_URL = 'https://login-backend.iamhereis.workers.dev/api'; // Matches the route in your Worker
-    const LOGIN_URL = `${API_BASE_URL}/login`;
-    const FORGOT_PASSWORD_URL = `${API_BASE_URL}/forgot-password`;
+    <script>
+        const API_BASE_URL = 'https://login-backend.iamhereis.workers.dev/api';
 
-    // Function to display messages
-    function showMessage(message, color = 'green') {
-      const messageDiv = document.getElementById('message');
-      messageDiv.textContent = message;
-      messageDiv.style.color = color;
-    }
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-    // Login button click handler
-    document.getElementById('login-btn').addEventListener('click', async () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
 
-      if (!email || !password) {
-        showMessage('Please enter both email and password', 'red');
-        return;
-      }
-
-      try {
-        const response = await fetch(LOGIN_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          showMessage(data.message || 'Login successful');
-        } else {
-          const errorData = await response.json();
-          showMessage(errorData.message || 'Login failed', 'red');
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message); // Display success message
+                } else {
+                    alert(data.message); // Display error message
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
         }
-      } catch (error) {
-        showMessage('An error occurred. Please try again.', 'red');
-      }
-    });
 
-    // Forgot password button click handler
-    document.getElementById('forgot-password-btn').addEventListener('click', async (event) => {
-      event.preventDefault();
-      const email = document.getElementById('email').value;
+        async function forgotPassword() {
+            const email = prompt('Enter your email to reset password');
+            if (email) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/forgot-password`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email }),
+                    });
 
-      if (!email) {
-        showMessage('Please enter your email address', 'red');
-        return;
-      }
-
-      try {
-        const response = await fetch(FORGOT_PASSWORD_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          showMessage(data.message || 'Password reset link sent to your email');
-        } else {
-          const errorData = await response.json();
-          showMessage(errorData.message || 'Failed to send password reset link', 'red');
+                    const data = await response.json();
+                    alert(data.message); // Display reset message
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                }
+            }
         }
-      } catch (error) {
-        showMessage('An error occurred. Please try again.', 'red');
-      }
-    });
-  </script>
+    </script>
+
 </body>
 </html>
